@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  # DynamoDB local para desarrollo sin AWS
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: spacex-dynamodb-local
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8000/shell || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # WebApp en modo desarrollo
+  webapp:
+    build:
+      context: ./webapp
+      target: builder
+    container_name: spacex-webapp
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./webapp/src:/app/src
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+      - VITE_AWS_REGION=us-east-1
+      - VITE_DYNAMODB_TABLE=spacex-launches-dev
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      dynamodb-local:
+        condition: service_healthy
+
+networks:
+  default:
+    name: spacex-network
