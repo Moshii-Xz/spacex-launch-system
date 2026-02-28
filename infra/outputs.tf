@@ -24,8 +24,13 @@ output "api_gateway_url" {
 }
 
 output "ecr_repository_url" {
-  description = "URL del repositorio ECR"
+  description = "URL del repositorio ECR (webapp)"
   value       = aws_ecr_repository.webapp.repository_url
+}
+
+output "ecr_backend_repository_url" {
+  description = "URL del repositorio ECR (backend API)"
+  value       = aws_ecr_repository.backend.repository_url
 }
 
 output "ecs_cluster_name" {
@@ -34,6 +39,11 @@ output "ecs_cluster_name" {
 }
 
 output "ecs_service_name" {
-  description = "Nombre del servicio ECS"
+  description = "Nombre del servicio ECS (webapp)"
   value       = aws_ecs_service.webapp.name
+}
+
+output "ecs_backend_service_name" {
+  description = "Nombre del servicio ECS (backend API)"
+  value       = aws_ecs_service.backend.name
 }
