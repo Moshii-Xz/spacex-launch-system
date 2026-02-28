@@ -8,10 +8,15 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: spacex-webapp-dev
-  ECS_CLUSTER: spacex-cluster-dev
-  ECS_SERVICE: spacex-webapp-service-dev
-  LAMBDA_FUNCTION: spacex-data-collector-dev
+  # WebApp
+  ECR_REPOSITORY_WEBAPP:   spacex-webapp-dev
+  ECS_CLUSTER:             spacex-cluster-dev
+  ECS_SERVICE_WEBAPP:      spacex-webapp-service-dev
+  # Backend API
+  ECR_REPOSITORY_BACKEND:  spacex-backend-dev
+  ECS_SERVICE_BACKEND:     spacex-backend-service-dev
+  # Lambda
+  LAMBDA_FUNCTION:         spacex-data-collector-dev
 
 jobs:
   # ── 1. Tests de la Lambda ──────────────────────────────────────────────────
@@ -44,7 +49,42 @@ jobs:
           files: lambda/coverage.xml
           flags: lambda
 
-  # ── 2. Tests de la WebApp ─────────────────────────────────────────────────
+  # ── 2. Tests del Backend ─────────────────────────────────────────────────
+  test-backend:
+    name: Tests Backend (Python/FastAPI)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements-dev.txt
+
+      - name: Ejecutar tests con cobertura
+        run: pytest tests/ --cov=. --cov-report=xml --cov-report=term-missing -v
+        env:
+          DYNAMODB_TABLE: spacex-launches-test
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: testing
+          AWS_SECRET_ACCESS_KEY: testing
+
+      - name: Subir reporte de cobertura
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: backend/coverage.xml
+          flags: backend
+
+  # ── 3. Tests de la WebApp ─────────────────────────────────────────────────
   test-webapp:
     name: Tests WebApp (Node.js)
     runs-on: ubuntu-latest
@@ -71,14 +111,15 @@ jobs:
       - name: Build de producción
         run: npm run build
 
-  # ── 3. Build y Push a ECR ─────────────────────────────────────────────────
+  # ── 4. Build y Push a ECR (WebApp + Backend) ────────────────────────────────
   build-and-push:
     name: Build Docker → ECR
     runs-on: ubuntu-latest
-    needs: [test-lambda, test-webapp]
+    needs: [test-lambda, test-backend, test-webapp]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     outputs:
-      image: ${{ steps.build-image.outputs.image }}
+      webapp_image:  ${{ steps.build-webapp.outputs.image }}
+      backend_image: ${{ steps.build-backend.outputs.image }}
 
     steps:
       - uses: actions/checkout@v4
@@ -94,23 +135,37 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag y push de imagen Docker
-        id: build-image
+      - name: Build y push imagen WebApp
+        id: build-webapp
         working-directory: webapp
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-                     $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG \
+                     $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-  # ── 4. Deploy a ECS Fargate ───────────────────────────────────────────────
-  deploy-ecs:
-    name: Deploy → ECS Fargate
+      - name: Build y push imagen Backend
+        id: build-backend
+        working-directory: backend
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG \
+                     $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+  # ── 5. Deploy WebApp → ECS Fargate ──────────────────────────────────────────
+  deploy-webapp:
+    name: Deploy WebApp → ECS Fargate
     runs-on: ubuntu-latest
     needs: build-and-push
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -123,11 +178,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region:            ${{ env.AWS_REGION }}
 
-      - name: Actualizar servicio ECS con nueva imagen
+      - name: Actualizar servicio WebApp en ECS
         run: |
           aws ecs update-service \
             --cluster $ECS_CLUSTER \
-            --service $ECS_SERVICE \
+            --service $ECS_SERVICE_WEBAPP \
             --force-new-deployment \
             --region $AWS_REGION
 
@@ -135,10 +190,40 @@ jobs:
         run: |
           aws ecs wait services-stable \
             --cluster $ECS_CLUSTER \
-            --services $ECS_SERVICE \
+            --services $ECS_SERVICE_WEBAPP \
             --region $AWS_REGION
 
-  # ── 5. Deploy Lambda ──────────────────────────────────────────────────────
+  # ── 6. Deploy Backend → ECS Fargate ──────────────────────────────────────────
+  deploy-backend:
+    name: Deploy Backend → ECS Fargate
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Configurar credenciales AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Actualizar servicio Backend en ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE_BACKEND \
+            --force-new-deployment \
+            --region $AWS_REGION
+
+      - name: Esperar deployment estable
+        run: |
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE_BACKEND \
+            --region $AWS_REGION
+
+  # ── 7. Deploy Lambda ──────────────────────────────────────────────────────
   deploy-lambda:
     name: Deploy → Lambda
     runs-on: ubuntu-latest
