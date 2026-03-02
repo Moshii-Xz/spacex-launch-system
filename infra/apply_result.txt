@@ -1,0 +1,11 @@
+﻿terraform : 
+En línea: 1 Carácter: 172
++ ... SIAYX2X6KDGCSYZFI4I"; terraform apply "tfplan" -no-color 2>&1 | Out-F ...
++                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Error: Saved plan is stale
+
+The given plan file can no longer be applied because the state was changed by
+another operation after the plan was created.

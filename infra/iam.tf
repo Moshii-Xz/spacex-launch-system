@@ -93,7 +93,8 @@ resource "aws_iam_policy" "ecs_dynamo_read" {
       Action = [
         "dynamodb:GetItem",
         "dynamodb:Scan",
-        "dynamodb:Query"
+        "dynamodb:Query",
+        "dynamodb:DescribeTable"
       ]
       Resource = [
         aws_dynamodb_table.spacex_launches.arn,
@@ -106,4 +107,23 @@ resource "aws_iam_policy" "ecs_dynamo_read" {
 resource "aws_iam_role_policy_attachment" "ecs_dynamo_read_policy" {
   role       = aws_iam_role.ecs_task.name
   policy_arn = aws_iam_policy.ecs_dynamo_read.arn
+}
+
+resource "aws_iam_policy" "ecs_lambda_invoke" {
+  name        = "${var.ecs_service_name}-lambda-invoke-${var.environment}"
+  description = "Permite al backend ECS invocar la Lambda de sincronizacion"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["lambda:InvokeFunction"]
+      Resource = "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:${var.lambda_function_name}-${var.environment}"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_lambda_invoke_policy" {
+  role       = aws_iam_role.ecs_task.name
+  policy_arn = aws_iam_policy.ecs_lambda_invoke.arn
 }

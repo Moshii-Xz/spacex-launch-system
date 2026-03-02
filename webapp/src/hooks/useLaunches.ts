@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { launchService } from '@/services/launchService'
+import { filterLaunches } from '@/utils/filterLaunches'
 import type { Launch, LaunchFilters, LaunchStats } from '@/types/launch'
 
 const DEFAULT_FILTERS: LaunchFilters = {
@@ -48,30 +49,7 @@ export function useLaunches() {
 
   // Aplicar filtros cada vez que cambian launches o filters
   useEffect(() => {
-    let result = [...launches]
-
-    if (filters.status !== 'all') {
-      result = result.filter((l) => l.status === filters.status)
-    }
-    if (filters.search) {
-      const q = filters.search.toLowerCase()
-      result = result.filter(
-        (l) =>
-          l.mission_name.toLowerCase().includes(q) ||
-          l.rocket_name.toLowerCase().includes(q) ||
-          l.launchpad.toLowerCase().includes(q),
-      )
-    }
-    if (filters.dateFrom) {
-      result = result.filter((l) => l.launch_date >= filters.dateFrom)
-    }
-    if (filters.dateTo) {
-      result = result.filter((l) => l.launch_date <= filters.dateTo)
-    }
-
-    // Ordenar por fecha descendente
-    result.sort((a, b) => new Date(b.launch_date).getTime() - new Date(a.launch_date).getTime())
-    setFiltered(result)
+    setFiltered(filterLaunches(launches, filters))
   }, [launches, filters])
 
   useEffect(() => {

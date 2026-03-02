@@ -1,0 +1,564 @@
+﻿data.archive_file.lambda_zip: Reading...
+aws_cloudwatch_event_rule.lambda_schedule: Refreshing state... [id=spacex-data-collector-schedule-dev]
+aws_cloudwatch_log_group.backend_logs: Refreshing state... [id=/ecs/spacex-backend-dev]
+aws_cloudwatch_log_group.lambda_logs: Refreshing state... [id=/aws/lambda/spacex-data-collector-dev]
+aws_apigatewayv2_api.lambda_api: Refreshing state... [id=z7i0z19trh]
+aws_iam_role.lambda_exec: Refreshing state... [id=spacex-data-collector-role-dev]
+data.aws_vpc.default: Reading...
+aws_iam_role.ecs_task_execution: Refreshing state... [id=spacex-webapp-service-exec-role-dev]
+aws_ecr_repository.webapp: Refreshing state... [id=spacex-webapp-dev]
+aws_dynamodb_table.spacex_launches: Refreshing state... [id=spacex-launches-dev]
+aws_cloudwatch_log_group.ecs_logs: Refreshing state... [id=/ecs/spacex-webapp-service-dev]
+aws_ecr_repository.backend: Refreshing state... [id=spacex-backend-dev]
+aws_iam_role.ecs_task: Refreshing state... [id=spacex-webapp-service-task-role-dev]
+data.aws_caller_identity.current: Reading...
+aws_ecs_cluster.main: Refreshing state... [id=arn:aws:ecs:us-east-1:600942989516:cluster/spacex-cluster-dev]
+aws_apigatewayv2_stage.lambda_stage: Refreshing state... [id=dev]
+data.aws_caller_identity.current: Read complete after 0s [id=600942989516]
+aws_iam_role_policy_attachment.lambda_basic_execution: Refreshing state... [id=spacex-data-collector-role-dev-20260228211346816000000001]
+aws_iam_role_policy_attachment.ecs_task_execution_policy: Refreshing state... [id=spacex-webapp-service-exec-role-dev-20260228211346819900000002]
+aws_ecs_task_definition.webapp: Refreshing state... [id=spacex-webapp-service-dev]
+data.aws_vpc.default: Read complete after 1s [id=vpc-01df740ab19aa3b35]
+data.aws_subnets.public: Reading...
+aws_security_group.ecs_sg: Refreshing state... [id=sg-08631f217c6fec187]
+aws_security_group.backend_sg: Refreshing state... [id=sg-00fcc51a5794a5fc7]
+aws_iam_policy.ecs_dynamo_read: Refreshing state... [id=arn:aws:iam::600942989516:policy/spacex-webapp-service-dynamo-read-dev]
+aws_iam_policy.lambda_dynamo: Refreshing state... [id=arn:aws:iam::600942989516:policy/spacex-data-collector-dynamo-policy-dev]
+aws_ecs_task_definition.backend: Refreshing state... [id=spacex-backend-dev]
+data.aws_subnets.public: Read complete after 1s [id=us-east-1]
+aws_iam_role_policy_attachment.lambda_dynamo_policy: Refreshing state... [id=spacex-data-collector-role-dev-20260228211801992200000004]
+aws_iam_role_policy_attachment.ecs_dynamo_read_policy: Refreshing state... [id=spacex-webapp-service-task-role-dev-20260228211801941600000003]
+aws_ecs_service.backend: Refreshing state... [id=arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-backend-service-dev]
+aws_ecs_service.webapp: Refreshing state... [id=arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-webapp-service-dev]
+data.archive_file.lambda_zip: Read complete after 3s [id=f3a99ea16b22bab73b2adc8f9b29f56b27031444]
+aws_lambda_function.spacex_collector: Refreshing state... [id=spacex-data-collector-dev]
+aws_lambda_permission.allow_eventbridge: Refreshing state... [id=AllowExecutionFromEventBridge]
+aws_lambda_permission.allow_api_gateway: Refreshing state... [id=AllowExecutionFromAPIGateway]
+aws_apigatewayv2_integration.lambda_integration: Refreshing state... [id=4k0hcke]
+aws_cloudwatch_event_target.lambda_target: Refreshing state... [id=spacex-data-collector-schedule-dev-SpaceXCollectorLambda]
+aws_apigatewayv2_route.trigger_route: Refreshing state... [id=9brrm96]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+  ~ update in-place
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # aws_ecs_service.backend will be updated in-place
+  ~ resource "aws_ecs_service" "backend" {
+        id                                 = "arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-backend-service-dev"
+        name                               = "spacex-backend-service-dev"
+        tags                               = {}
+        # (17 unchanged attributes hidden)
+
+      + load_balancer {
+          + container_name   = "backend"
+          + container_port   = 8000
+          + target_group_arn = (known after apply)
+            # (1 unchanged attribute hidden)
+        }
+
+        # (3 unchanged blocks hidden)
+    }
+
+  # aws_ecs_service.webapp will be updated in-place
+  ~ resource "aws_ecs_service" "webapp" {
+        id                                 = "arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-webapp-service-dev"
+        name                               = "spacex-webapp-service-dev"
+        tags                               = {}
+        # (17 unchanged attributes hidden)
+
+      + load_balancer {
+          + container_name   = "webapp"
+          + container_port   = 80
+          + target_group_arn = (known after apply)
+            # (1 unchanged attribute hidden)
+        }
+
+        # (3 unchanged blocks hidden)
+    }
+
+  # aws_ecs_task_definition.webapp must be replaced
+-/+ resource "aws_ecs_task_definition" "webapp" {
+      ~ arn                      = "arn:aws:ecs:us-east-1:600942989516:task-definition/spacex-webapp-service-dev:1" -> (known after apply)
+      ~ arn_without_revision     = "arn:aws:ecs:us-east-1:600942989516:task-definition/spacex-webapp-service-dev" -> (known after apply)
+      ~ container_definitions    = jsonencode(
+          ~ [
+              ~ {
+                  ~ environment      = [
+                      - {
+                          - name  = "AWS_REGION"
+                          - value = "us-east-1"
+                        },
+                      - {
+                          - name  = "DYNAMODB_TABLE"
+                          - value = "spacex-launches-dev"
+                        },
+                        {
+                            name  = "ENVIRONMENT"
+                            value = "dev"
+                        },
+                    ]
+                  - essential        = true
+                  - mountPoints      = []
+                    name             = "webapp"
+                  ~ portMappings     = [
+                      ~ {
+                          - hostPort      = 80
+                            # (2 unchanged attributes hidden)
+                        },
+                    ]
+                  - systemControls   = []
+                  - volumesFrom      = []
+                    # (2 unchanged attributes hidden)
+                },
+            ] # forces replacement
+        )
+      ~ enable_fault_injection   = false -> (known after apply)
+      ~ id                       = "spacex-webapp-service-dev" -> (known after apply)
+      ~ revision                 = 1 -> (known after apply)
+      - tags                     = {} -> null
+        # (12 unchanged attributes hidden)
+    }
+
+  # aws_lambda_function.spacex_collector will be updated in-place
+  ~ resource "aws_lambda_function" "spacex_collector" {
+        id                             = "spacex-data-collector-dev"
+      ~ last_modified                  = "2026-02-28T21:59:38.000+0000" -> (known after apply)
+      ~ source_code_hash               = "VFY013SaD01UFGoYev2wC1Foxd9G689STzM/2+sIcpQ=" -> "aZigc4pBvabWxkpQyLg1H1ZhO3xvVy/SZKKNJsDvzJA="
+        tags                           = {}
+        # (27 unchanged attributes hidden)
+
+        # (4 unchanged blocks hidden)
+    }
+
+  # aws_lb.main will be created
+  + resource "aws_lb" "main" {
+      + arn                                                          = (known after apply)
+      + arn_suffix                                                   = (known after apply)
+      + client_keep_alive                                            = 3600
+      + desync_mitigation_mode                                       = "defensive"
+      + dns_name                                                     = (known after apply)
+      + drop_invalid_header_fields                                   = false
+      + enable_deletion_protection                                   = false
+      + enable_http2                                                 = true
+      + enable_tls_version_and_cipher_suite_headers                  = false
+      + enable_waf_fail_open                                         = false
+      + enable_xff_client_port                                       = false
+      + enable_zonal_shift                                           = false
+      + enforce_security_group_inbound_rules_on_private_link_traffic = (known after apply)
+      + id                                                           = (known after apply)
+      + idle_timeout                                                 = 60
+      + internal                                                     = false
+      + ip_address_type                                              = (known after apply)
+      + load_balancer_type                                           = "application"
+      + name                                                         = "spacex-alb-dev"
+      + name_prefix                                                  = (known after apply)
+      + preserve_host_header                                         = false
+      + security_groups                                              = (known after apply)
+      + subnets                                                      = [
+          + "subnet-02c3d843fa27a8a46",
+          + "subnet-059bc21bd573de0ab",
+          + "subnet-0a64aee44a52a10bf",
+          + "subnet-0ada71689623744db",
+          + "subnet-0bdf55f3d4ad26943",
+          + "subnet-0cdee661766af4e0f",
+        ]
+      + tags                                                         = {
+          + "Name" = "spacex-alb-dev"
+        }
+      + tags_all                                                     = {
+          + "Environment" = "dev"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "spacex-alb-dev"
+          + "Project"     = "spacex-launch-system"
+        }
+      + vpc_id                                                       = (known after apply)
+      + xff_header_processing_mode                                   = "append"
+      + zone_id                                                      = (known after apply)
+
+      + subnet_mapping (known after apply)
+    }
+
+  # aws_lb_listener.http will be created
+  + resource "aws_lb_listener" "http" {
+      + arn                                                                   = (known after apply)
+      + id                                                                    = (known after apply)
+      + load_balancer_arn                                                     = (known after apply)
+      + port                                                                  = 80
+      + protocol                                                              = "HTTP"
+      + routing_http_request_x_amzn_mtls_clientcert_header_name               = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_issuer_header_name        = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_leaf_header_name          = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_serial_number_header_name = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_subject_header_name       = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_validity_header_name      = (known after apply)
+      + routing_http_request_x_amzn_tls_cipher_suite_header_name              = (known after apply)
+      + routing_http_request_x_amzn_tls_version_header_name                   = (known after apply)
+      + routing_http_response_access_control_allow_credentials_header_value   = (known after apply)
+      + routing_http_response_access_control_allow_headers_header_value       = (known after apply)
+      + routing_http_response_access_control_allow_methods_header_value       = (known after apply)
+      + routing_http_response_access_control_allow_origin_header_value        = (known after apply)
+      + routing_http_response_access_control_expose_headers_header_value      = (known after apply)
+      + routing_http_response_access_control_max_age_header_value             = (known after apply)
+      + routing_http_response_content_security_policy_header_value            = (known after apply)
+      + routing_http_response_server_enabled                                  = (known after apply)
+      + routing_http_response_strict_transport_security_header_value          = (known after apply)
+      + routing_http_response_x_content_type_options_header_value             = (known after apply)
+      + routing_http_response_x_frame_options_header_value                    = (known after apply)
+      + ssl_policy                                                            = (known after apply)
+      + tags_all                                                              = {
+          + "Environment" = "dev"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "spacex-launch-system"
+        }
+      + tcp_idle_timeout_seconds                                              = (known after apply)
+
+      + default_action {
+          + order            = (known after apply)
+          + target_group_arn = (known after apply)
+          + type             = "forward"
+        }
+
+      + mutual_authentication (known after apply)
+    }
+
+  # aws_lb_listener_rule.api will be created
+  + resource "aws_lb_listener_rule" "api" {
+      + arn          = (known after apply)
+      + id           = (known after apply)
+      + listener_arn = (known after apply)
+      + priority     = 100
+      + tags_all     = {
+          + "Environment" = "dev"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "spacex-launch-system"
+        }
+
+      + action {
+          + order            = (known after apply)
+          + target_group_arn = (known after apply)
+          + type             = "forward"
+        }
+
+      + condition {
+          + path_pattern {
+              + values = [
+                  + "/api/v1*",
+                ]
+            }
+        }
+    }
+
+  # aws_lb_listener_rule.docs will be created
+  + resource "aws_lb_listener_rule" "docs" {
+      + arn          = (known after apply)
+      + id           = (known after apply)
+      + listener_arn = (known after apply)
+      + priority     = 80
+      + tags_all     = {
+          + "Environment" = "dev"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "spacex-launch-system"
+        }
+
+      + action {
+          + order            = (known after apply)
+          + target_group_arn = (known after apply)
+          + type             = "forward"
+        }
+
+      + condition {
+          + path_pattern {
+              + values = [
+                  + "/docs",
+                  + "/docs/*",
+                  + "/openapi.json",
+                  + "/redoc",
+                ]
+            }
+        }
+    }
+
+  # aws_lb_listener_rule.health will be created
+  + resource "aws_lb_listener_rule" "health" {
+      + arn          = (known after apply)
+      + id           = (known after apply)
+      + listener_arn = (known after apply)
+      + priority     = 90
+      + tags_all     = {
+          + "Environment" = "dev"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "spacex-launch-system"
+        }
+
+      + action {
+          + order            = (known after apply)
+          + target_group_arn = (known after apply)
+          + type             = "forward"
+        }
+
+      + condition {
+          + path_pattern {
+              + values = [
+                  + "/health",
+                ]
+            }
+        }
+    }
+
+  # aws_lb_target_group.backend will be created
+  + resource "aws_lb_target_group" "backend" {
+      + arn                                = (known after apply)
+      + arn_suffix                         = (known after apply)
+      + connection_termination             = (known after apply)
+      + deregistration_delay               = "30"
+      + id                                 = (known after apply)
+      + ip_address_type                    = (known after apply)
+      + lambda_multi_value_headers_enabled = false
+      + load_balancer_arns                 = (known after apply)
+      + load_balancing_algorithm_type      = (known after apply)
+      + load_balancing_anomaly_mitigation  = (known after apply)
+      + load_balancing_cross_zone_enabled  = (known after apply)
+      + name                               = "spacex-backend-tg-dev"
+      + name_prefix                        = (known after apply)
+      + port                               = 8000
+      + preserve_client_ip                 = (known after apply)
+      + protocol                           = "HTTP"
+      + protocol_version                   = (known after apply)
+      + proxy_protocol_v2                  = false
+      + slow_start                         = 0
+      + tags                               = {
+          + "Name" = "spacex-backend-tg-dev"
+        }
+      + tags_all                           = {
+          + "Environment" = "dev"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "spacex-backend-tg-dev"
+          + "Project"     = "spacex-launch-system"
+        }
+      + target_type                        = "ip"
+      + vpc_id                             = "vpc-01df740ab19aa3b35"
+
+      + health_check {
+          + enabled             = true
+          + healthy_threshold   = 2
+          + interval            = 30
+          + matcher             = "200"
+          + path                = "/health"
+          + port                = "traffic-port"
+          + protocol            = "HTTP"
+          + timeout             = 5
+          + unhealthy_threshold = 3
+        }
+
+      + stickiness (known after apply)
+
+      + target_failover (known after apply)
+
+      + target_group_health (known after apply)
+
+      + target_health_state (known after apply)
+    }
+
+  # aws_lb_target_group.webapp will be created
+  + resource "aws_lb_target_group" "webapp" {
+      + arn                                = (known after apply)
+      + arn_suffix                         = (known after apply)
+      + connection_termination             = (known after apply)
+      + deregistration_delay               = "30"
+      + id                                 = (known after apply)
+      + ip_address_type                    = (known after apply)
+      + lambda_multi_value_headers_enabled = false
+      + load_balancer_arns                 = (known after apply)
+      + load_balancing_algorithm_type      = (known after apply)
+      + load_balancing_anomaly_mitigation  = (known after apply)
+      + load_balancing_cross_zone_enabled  = (known after apply)
+      + name                               = "spacex-webapp-tg-dev"
+      + name_prefix                        = (known after apply)
+      + port                               = 80
+      + preserve_client_ip                 = (known after apply)
+      + protocol                           = "HTTP"
+      + protocol_version                   = (known after apply)
+      + proxy_protocol_v2                  = false
+      + slow_start                         = 0
+      + tags                               = {
+          + "Name" = "spacex-webapp-tg-dev"
+        }
+      + tags_all                           = {
+          + "Environment" = "dev"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "spacex-webapp-tg-dev"
+          + "Project"     = "spacex-launch-system"
+        }
+      + target_type                        = "ip"
+      + vpc_id                             = "vpc-01df740ab19aa3b35"
+
+      + health_check {
+          + enabled             = true
+          + healthy_threshold   = 2
+          + interval            = 30
+          + matcher             = "200"
+          + path                = "/health"
+          + port                = "traffic-port"
+          + protocol            = "HTTP"
+          + timeout             = 5
+          + unhealthy_threshold = 3
+        }
+
+      + stickiness (known after apply)
+
+      + target_failover (known after apply)
+
+      + target_group_health (known after apply)
+
+      + target_health_state (known after apply)
+    }
+
+  # aws_security_group.alb_sg will be created
+  + resource "aws_security_group" "alb_sg" {
+      + arn                    = (known after apply)
+      + description            = "Security group para el Application Load Balancer"
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+                # (1 unchanged attribute hidden)
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = "HTTP desde internet"
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 80
+            },
+        ]
+      + name                   = "spacex-alb-sg-dev"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags                   = {
+          + "Name" = "spacex-alb-sg-dev"
+        }
+      + tags_all               = {
+          + "Environment" = "dev"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "spacex-alb-sg-dev"
+          + "Project"     = "spacex-launch-system"
+        }
+      + vpc_id                 = "vpc-01df740ab19aa3b35"
+    }
+
+  # aws_security_group.backend_sg will be updated in-place
+  ~ resource "aws_security_group" "backend_sg" {
+        id                     = "sg-00fcc51a5794a5fc7"
+      ~ ingress                = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - from_port        = 8000
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 8000
+                # (1 unchanged attribute hidden)
+            },
+          + {
+              + cidr_blocks      = []
+              + description      = "Tr├ífico API desde el ALB"
+              + from_port        = 8000
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = (known after apply)
+              + self             = false
+              + to_port          = 8000
+            },
+        ]
+        name                   = "spacex-backend-sg-dev"
+      ~ tags                   = {
+          + "Name" = "spacex-backend-sg-dev"
+        }
+      ~ tags_all               = {
+          + "Name"        = "spacex-backend-sg-dev"
+            # (3 unchanged elements hidden)
+        }
+        # (7 unchanged attributes hidden)
+    }
+
+  # aws_security_group.ecs_sg will be updated in-place
+  ~ resource "aws_security_group" "ecs_sg" {
+        id                     = "sg-08631f217c6fec187"
+      ~ ingress                = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - from_port        = 80
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 80
+                # (1 unchanged attribute hidden)
+            },
+          + {
+              + cidr_blocks      = []
+              + description      = "Tr├ífico HTTP desde el ALB"
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = (known after apply)
+              + self             = false
+              + to_port          = 80
+            },
+        ]
+        name                   = "spacex-webapp-service-sg-dev"
+      ~ tags                   = {
+          + "Name" = "spacex-webapp-service-sg-dev"
+        }
+      ~ tags_all               = {
+          + "Name"        = "spacex-webapp-service-sg-dev"
+            # (3 unchanged elements hidden)
+        }
+        # (7 unchanged attributes hidden)
+    }
+
+Plan: 9 to add, 5 to change, 1 to destroy.
+
+Changes to Outputs:
+  + alb_dns_name               = (known after apply)
+  + api_url                    = (known after apply)
+  + swagger_url                = (known after apply)
+  + webapp_url                 = (known after apply)
+
+ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+Saved the plan to: tfplan
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "tfplan"

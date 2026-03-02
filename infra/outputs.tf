@@ -47,3 +47,23 @@ output "ecs_backend_service_name" {
   description = "Nombre del servicio ECS (backend API)"
   value       = aws_ecs_service.backend.name
 }
+
+output "alb_dns_name" {
+  description = "DNS del Application Load Balancer"
+  value       = aws_lb.main.dns_name
+}
+
+output "webapp_url" {
+  description = "URL pública de la webapp (vía ALB — DNS estable)"
+  value       = "http://${aws_lb.main.dns_name}"
+}
+
+output "api_url" {
+  description = "URL base de la API REST (vía ALB)"
+  value       = "http://${aws_lb.main.dns_name}/api/v1"
+}
+
+output "swagger_url" {
+  description = "URL del Swagger UI (vía ALB)"
+  value       = "http://${aws_lb.main.dns_name}/docs"
+}

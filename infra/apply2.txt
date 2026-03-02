@@ -1,0 +1,240 @@
+﻿data.archive_file.lambda_zip: Reading...
+aws_cloudwatch_event_rule.lambda_schedule: Refreshing state... [id=spacex-data-collector-schedule-dev]
+aws_iam_role.ecs_task: Refreshing state... [id=spacex-webapp-service-task-role-dev]
+aws_ecr_repository.webapp: Refreshing state... [id=spacex-webapp-dev]
+aws_iam_role.lambda_exec: Refreshing state... [id=spacex-data-collector-role-dev]
+aws_iam_role.ecs_task_execution: Refreshing state... [id=spacex-webapp-service-exec-role-dev]
+aws_apigatewayv2_api.lambda_api: Refreshing state... [id=z7i0z19trh]
+aws_cloudwatch_log_group.backend_logs: Refreshing state... [id=/ecs/spacex-backend-dev]
+data.aws_caller_identity.current: Reading...
+aws_cloudwatch_log_group.ecs_logs: Refreshing state... [id=/ecs/spacex-webapp-service-dev]
+data.aws_caller_identity.current: Read complete after 0s [id=600942989516]
+aws_dynamodb_table.spacex_launches: Refreshing state... [id=spacex-launches-dev]
+aws_ecs_cluster.main: Refreshing state... [id=arn:aws:ecs:us-east-1:600942989516:cluster/spacex-cluster-dev]
+aws_cloudwatch_log_group.lambda_logs: Refreshing state... [id=/aws/lambda/spacex-data-collector-dev]
+aws_ecr_repository.backend: Refreshing state... [id=spacex-backend-dev]
+data.aws_vpc.default: Reading...
+aws_ecs_task_definition.webapp: Refreshing state... [id=spacex-webapp-service-dev]
+aws_iam_role_policy_attachment.ecs_task_execution_policy: Refreshing state... [id=spacex-webapp-service-exec-role-dev-20260228211346819900000002]
+aws_iam_role_policy_attachment.lambda_basic_execution: Refreshing state... [id=spacex-data-collector-role-dev-20260228211346816000000001]
+aws_apigatewayv2_stage.lambda_stage: Refreshing state... [id=dev]
+aws_ecs_task_definition.backend: Refreshing state... [id=spacex-backend-dev]
+aws_iam_policy.lambda_dynamo: Refreshing state... [id=arn:aws:iam::600942989516:policy/spacex-data-collector-dynamo-policy-dev]
+aws_iam_policy.ecs_dynamo_read: Refreshing state... [id=arn:aws:iam::600942989516:policy/spacex-webapp-service-dynamo-read-dev]
+data.aws_vpc.default: Read complete after 1s [id=vpc-01df740ab19aa3b35]
+data.aws_subnets.public: Reading...
+aws_lb_target_group.backend: Refreshing state... [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:targetgroup/spacex-backend-tg-dev/0304652305388b74]
+aws_security_group.alb_sg: Refreshing state... [id=sg-0be0a7f566501946d]
+aws_lb_target_group.webapp: Refreshing state... [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:targetgroup/spacex-webapp-tg-dev/1c4a40864aaf7d34]
+aws_iam_role_policy_attachment.ecs_dynamo_read_policy: Refreshing state... [id=spacex-webapp-service-task-role-dev-20260228211801941600000003]
+aws_iam_role_policy_attachment.lambda_dynamo_policy: Refreshing state... [id=spacex-data-collector-role-dev-20260228211801992200000004]
+data.aws_subnets.public: Read complete after 0s [id=us-east-1]
+aws_lb.main: Refreshing state... [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:loadbalancer/app/spacex-alb-dev/587a20888fa6aba9]
+aws_security_group.ecs_sg: Refreshing state... [id=sg-08631f217c6fec187]
+aws_security_group.backend_sg: Refreshing state... [id=sg-00fcc51a5794a5fc7]
+aws_lb_listener.http: Refreshing state... [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:listener/app/spacex-alb-dev/587a20888fa6aba9/f75499c390919ea2]
+aws_lb_listener_rule.api: Refreshing state... [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:listener-rule/app/spacex-alb-dev/587a20888fa6aba9/f75499c390919ea2/240a6a891e81c1f8]
+aws_lb_listener_rule.docs: Refreshing state... [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:listener-rule/app/spacex-alb-dev/587a20888fa6aba9/f75499c390919ea2/946f9c776926fa97]
+aws_lb_listener_rule.health: Refreshing state... [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:listener-rule/app/spacex-alb-dev/587a20888fa6aba9/f75499c390919ea2/4cb4f3f96c7ddbce]
+aws_ecs_service.webapp: Refreshing state... [id=arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-webapp-service-dev]
+aws_ecs_service.backend: Refreshing state... [id=arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-backend-service-dev]
+data.archive_file.lambda_zip: Read complete after 9s [id=f3a99ea16b22bab73b2adc8f9b29f56b27031444]
+aws_lambda_function.spacex_collector: Refreshing state... [id=spacex-data-collector-dev]
+aws_apigatewayv2_integration.lambda_integration: Refreshing state... [id=4k0hcke]
+aws_cloudwatch_event_target.lambda_target: Refreshing state... [id=spacex-data-collector-schedule-dev-SpaceXCollectorLambda]
+aws_lambda_permission.allow_api_gateway: Refreshing state... [id=AllowExecutionFromAPIGateway]
+aws_lambda_permission.allow_eventbridge: Refreshing state... [id=AllowExecutionFromEventBridge]
+aws_apigatewayv2_route.trigger_route: Refreshing state... [id=9brrm96]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  ~ update in-place
+
+Terraform will perform the following actions:
+
+  # aws_ecs_service.backend will be updated in-place
+  ~ resource "aws_ecs_service" "backend" {
+        id                                 = "arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-backend-service-dev"
+        name                               = "spacex-backend-service-dev"
+        tags                               = {}
+        # (17 unchanged attributes hidden)
+
+      + load_balancer {
+          + container_name   = "backend"
+          + container_port   = 8000
+          + target_group_arn = "arn:aws:elasticloadbalancing:us-east-1:600942989516:targetgroup/spacex-backend-tg-dev/0304652305388b74"
+            # (1 unchanged attribute hidden)
+        }
+
+        # (3 unchanged blocks hidden)
+    }
+
+  # aws_ecs_service.webapp will be updated in-place
+  ~ resource "aws_ecs_service" "webapp" {
+        id                                 = "arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-webapp-service-dev"
+        name                               = "spacex-webapp-service-dev"
+        tags                               = {}
+        # (17 unchanged attributes hidden)
+
+      + load_balancer {
+          + container_name   = "webapp"
+          + container_port   = 80
+          + target_group_arn = "arn:aws:elasticloadbalancing:us-east-1:600942989516:targetgroup/spacex-webapp-tg-dev/1c4a40864aaf7d34"
+            # (1 unchanged attribute hidden)
+        }
+
+        # (3 unchanged blocks hidden)
+    }
+
+  # aws_security_group.alb_sg will be updated in-place
+  ~ resource "aws_security_group" "alb_sg" {
+        id                     = "sg-0be0a7f566501946d"
+      ~ ingress                = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - description      = "HTTP desde internet"
+              - from_port        = 80
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 80
+            },
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = "HTTP from internet"
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 80
+            },
+        ]
+        name                   = "spacex-alb-sg-dev"
+        tags                   = {
+            "Name" = "spacex-alb-sg-dev"
+        }
+        # (8 unchanged attributes hidden)
+    }
+
+  # aws_security_group.backend_sg will be updated in-place
+  ~ resource "aws_security_group" "backend_sg" {
+        id                     = "sg-00fcc51a5794a5fc7"
+      ~ ingress                = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - from_port        = 8000
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 8000
+                # (1 unchanged attribute hidden)
+            },
+          + {
+              + cidr_blocks      = []
+              + description      = "API traffic from ALB"
+              + from_port        = 8000
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = [
+                  + "sg-0be0a7f566501946d",
+                ]
+              + self             = false
+              + to_port          = 8000
+            },
+        ]
+        name                   = "spacex-backend-sg-dev"
+      ~ tags                   = {
+          + "Name" = "spacex-backend-sg-dev"
+        }
+      ~ tags_all               = {
+          + "Name"        = "spacex-backend-sg-dev"
+            # (3 unchanged elements hidden)
+        }
+        # (7 unchanged attributes hidden)
+    }
+
+  # aws_security_group.ecs_sg will be updated in-place
+  ~ resource "aws_security_group" "ecs_sg" {
+        id                     = "sg-08631f217c6fec187"
+      ~ ingress                = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - from_port        = 80
+              - ipv6_cidr_blocks = []
+              - prefix_list_ids  = []
+              - protocol         = "tcp"
+              - security_groups  = []
+              - self             = false
+              - to_port          = 80
+                # (1 unchanged attribute hidden)
+            },
+          + {
+              + cidr_blocks      = []
+              + description      = "HTTP traffic from ALB"
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = [
+                  + "sg-0be0a7f566501946d",
+                ]
+              + self             = false
+              + to_port          = 80
+            },
+        ]
+        name                   = "spacex-webapp-service-sg-dev"
+      ~ tags                   = {
+          + "Name" = "spacex-webapp-service-sg-dev"
+        }
+      ~ tags_all               = {
+          + "Name"        = "spacex-webapp-service-sg-dev"
+            # (3 unchanged elements hidden)
+        }
+        # (7 unchanged attributes hidden)
+    }
+
+Plan: 0 to add, 5 to change, 0 to destroy.
+aws_security_group.alb_sg: Modifying... [id=sg-0be0a7f566501946d]
+aws_security_group.alb_sg: Modifications complete after 2s [id=sg-0be0a7f566501946d]
+aws_security_group.ecs_sg: Modifying... [id=sg-08631f217c6fec187]
+aws_security_group.backend_sg: Modifying... [id=sg-00fcc51a5794a5fc7]
+aws_security_group.ecs_sg: Modifications complete after 1s [id=sg-08631f217c6fec187]
+aws_security_group.backend_sg: Modifications complete after 1s [id=sg-00fcc51a5794a5fc7]
+aws_ecs_service.webapp: Modifying... [id=arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-webapp-service-dev]
+aws_ecs_service.backend: Modifying... [id=arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-backend-service-dev]
+aws_ecs_service.webapp: Modifications complete after 1s [id=arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-webapp-service-dev]
+aws_ecs_service.backend: Modifications complete after 1s [id=arn:aws:ecs:us-east-1:600942989516:service/spacex-cluster-dev/spacex-backend-service-dev]
+
+Apply complete! Resources: 0 added, 5 changed, 0 destroyed.
+
+Outputs:
+
+alb_dns_name = "spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com"
+api_gateway_url = "https://z7i0z19trh.execute-api.us-east-1.amazonaws.com/dev/trigger"
+api_url = "http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1"
+dynamodb_table_arn = "arn:aws:dynamodb:us-east-1:600942989516:table/spacex-launches-dev"
+dynamodb_table_name = "spacex-launches-dev"
+ecr_backend_repository_url = "600942989516.dkr.ecr.us-east-1.amazonaws.com/spacex-backend-dev"
+ecr_repository_url = "600942989516.dkr.ecr.us-east-1.amazonaws.com/spacex-webapp-dev"
+ecs_backend_service_name = "spacex-backend-service-dev"
+ecs_cluster_name = "spacex-cluster-dev"
+ecs_service_name = "spacex-webapp-service-dev"
+lambda_function_arn = "arn:aws:lambda:us-east-1:600942989516:function:spacex-data-collector-dev"
+lambda_function_name = "spacex-data-collector-dev"
+swagger_url = "http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/docs"
+webapp_url = "http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com"

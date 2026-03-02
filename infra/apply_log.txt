@@ -1,0 +1,60 @@
+﻿aws_ecs_task_definition.webapp: Destroying... [id=spacex-webapp-service-dev]
+aws_security_group.alb_sg: Creating...
+aws_lb_target_group.webapp: Creating...
+aws_lb_target_group.backend: Creating...
+aws_lambda_function.spacex_collector: Modifying... [id=spacex-data-collector-dev]
+aws_ecs_task_definition.webapp: Destruction complete after 1s
+aws_ecs_task_definition.webapp: Creating...
+aws_ecs_task_definition.webapp: Creation complete after 0s [id=spacex-webapp-service-dev]
+aws_lb_target_group.webapp: Creation complete after 2s [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:targetgroup/spacex-webapp-tg-dev/1c4a40864aaf7d34]
+aws_lb_target_group.backend: Creation complete after 2s [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:targetgroup/spacex-backend-tg-dev/0304652305388b74]
+aws_security_group.alb_sg: Creation complete after 4s [id=sg-0be0a7f566501946d]
+aws_lb.main: Creating...
+aws_lambda_function.spacex_collector: Still modifying... [id=spacex-data-collector-dev, 00m10s elapsed]
+aws_lb.main: Still creating... [00m10s elapsed]
+aws_lambda_function.spacex_collector: Still modifying... [id=spacex-data-collector-dev, 00m20s elapsed]
+aws_lambda_function.spacex_collector: Modifications complete after 24s [id=spacex-data-collector-dev]
+aws_lb.main: Still creating... [00m20s elapsed]
+aws_lb.main: Still creating... [00m30s elapsed]
+aws_lb.main: Still creating... [00m40s elapsed]
+aws_lb.main: Still creating... [00m50s elapsed]
+aws_lb.main: Still creating... [01m00s elapsed]
+aws_lb.main: Still creating... [01m10s elapsed]
+aws_lb.main: Still creating... [01m20s elapsed]
+aws_lb.main: Still creating... [01m30s elapsed]
+aws_lb.main: Still creating... [01m40s elapsed]
+aws_lb.main: Still creating... [01m51s elapsed]
+aws_lb.main: Still creating... [02m01s elapsed]
+aws_lb.main: Still creating... [02m11s elapsed]
+aws_lb.main: Still creating... [02m21s elapsed]
+aws_lb.main: Still creating... [02m31s elapsed]
+aws_lb.main: Creation complete after 2m33s [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:loadbalancer/app/spacex-alb-dev/587a20888fa6aba9]
+aws_lb_listener.http: Creating...
+aws_lb_listener.http: Creation complete after 1s [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:listener/app/spacex-alb-dev/587a20888fa6aba9/f75499c390919ea2]
+aws_lb_listener_rule.health: Creating...
+aws_lb_listener_rule.api: Creating...
+aws_lb_listener_rule.docs: Creating...
+aws_lb_listener_rule.api: Creation complete after 0s [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:listener-rule/app/spacex-alb-dev/587a20888fa6aba9/f75499c390919ea2/240a6a891e81c1f8]
+aws_lb_listener_rule.health: Creation complete after 0s [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:listener-rule/app/spacex-alb-dev/587a20888fa6aba9/f75499c390919ea2/4cb4f3f96c7ddbce]
+aws_lb_listener_rule.docs: Creation complete after 0s [id=arn:aws:elasticloadbalancing:us-east-1:600942989516:listener-rule/app/spacex-alb-dev/587a20888fa6aba9/f75499c390919ea2/946f9c776926fa97]
+terraform : 
+En línea: 1 Carácter: 1
++ terraform apply "tfplan" -no-color 2>&1 | Out-File "apply_log.txt" -E ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Error: "ingress.0.description" doesn't comply with restrictions ("^[0-9A-Za-z_ .:/()#,@\\[\\]+=&;{}!$*-]*$"): "Tr├ífico HTTP desde el 
+ALB"
+
+  with aws_security_group.ecs_sg,
+  on ecs.tf line 73, in resource "aws_security_group" "ecs_sg":
+  73: resource "aws_security_group" "ecs_sg" {
+
+
+Error: "ingress.0.description" doesn't comply with restrictions ("^[0-9A-Za-z_ .:/()#,@\\[\\]+=&;{}!$*-]*$"): "Tr├ífico API desde el ALB"
+
+  with aws_security_group.backend_sg,
+  on ecs.tf line 95, in resource "aws_security_group" "backend_sg":
+  95: resource "aws_security_group" "backend_sg" {
+

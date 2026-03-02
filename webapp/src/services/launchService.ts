@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type { Launch, LaunchStats } from '@/types/launch'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -28,7 +28,7 @@ export const launchService = {
     const success = launches.filter((l) => l.status === 'success').length
     const failed = launches.filter((l) => l.status === 'failed').length
     const upcoming = launches.filter((l) => l.status === 'upcoming').length
-    const successRate = total > 0 ? Math.round((success / (success + failed)) * 100) : 0
+    const successRate = (success + failed) > 0 ? Math.round((success / (success + failed)) * 100) : 0
     return { total, success, failed, upcoming, successRate }
   },
 }
