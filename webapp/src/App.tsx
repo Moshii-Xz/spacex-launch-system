@@ -25,6 +25,10 @@ function App() {
         </div>
         <div className="header__meta">
           <span className="header__count">{allLaunches.length} lanzamientos en BD</span>
+          <span className="header__live">
+            <span className="header__live-dot" />
+            Live
+          </span>
         </div>
       </header>
 

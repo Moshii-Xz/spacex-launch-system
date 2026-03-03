@@ -93,6 +93,30 @@ export function LaunchCharts({ launches }: LaunchChartsProps) {
     }],
   }
 
+  // ── Horizontal Bar: top cohetes ─────────────────────────────────────────
+  const rocketCounts: Record<string, number> = {}
+  launches.forEach((l) => {
+    if (l.rocket_name) rocketCounts[l.rocket_name] = (rocketCounts[l.rocket_name] || 0) + 1
+  })
+  const topRockets = Object.entries(rocketCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+
+  const rocketColors = [
+    '#3b82f6', '#6366f1', '#a855f7', '#ec4899',
+    '#f59e0b', '#22c55e', '#14b8a6', '#f97316',
+  ]
+
+  const rocketBarData = {
+    labels: topRockets.map(([name]) => name),
+    datasets: [{
+      label: 'Lanzamientos',
+      data: topRockets.map(([, count]) => count),
+      backgroundColor: rocketColors.slice(0, topRockets.length),
+      borderRadius: 4,
+    }],
+  }
+
   const darkOptions = (title: string) => ({
     responsive: true,
     maintainAspectRatio: false,
@@ -108,6 +132,7 @@ export function LaunchCharts({ launches }: LaunchChartsProps) {
 
   return (
     <div className="charts-grid">
+      {/* Doughnut: estado */}
       <div className="chart-card chart-card--sm">
         <Doughnut
           data={doughnutData}
@@ -115,28 +140,58 @@ export function LaunchCharts({ launches }: LaunchChartsProps) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { position: 'bottom', labels: { color: '#94a3b8' } },
-              title: { display: true, text: 'Distribución por estado', color: '#e2e8f0', font: { size: 14 } },
+              legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 12, boxWidth: 12 } },
+              title: { display: true, text: 'Distribución por estado', color: '#e2e8f0', font: { size: 13, weight: 'bold' } },
             },
           }}
         />
       </div>
 
+      {/* Bar: lanzamientos por año */}
       <div className="chart-card chart-card--lg">
         <Bar
           data={barData}
           options={{
             ...darkOptions('Lanzamientos por año'),
             scales: {
-              x: { stacked: true, ticks: { color: '#64748b' }, grid: { color: '#1e293b' } },
-              y: { stacked: true, ticks: { color: '#64748b' }, grid: { color: '#1e293b' } },
+              x: { stacked: true, ticks: { color: '#64748b' }, grid: { color: 'rgba(30,48,80,0.6)' } },
+              y: { stacked: true, ticks: { color: '#64748b' }, grid: { color: 'rgba(30,48,80,0.6)' } },
             },
           }}
         />
       </div>
 
-      <div className="chart-card chart-card--full">
-        <Line data={lineChartData} options={darkOptions('Acumulado de lanzamientos exitosos')} />
+      {/* Horizontal Bar: top cohetes */}
+      <div className="chart-card chart-card--sm">
+        <Bar
+          data={rocketBarData}
+          options={{
+            ...darkOptions('Top cohetes por lanzamientos'),
+            indexAxis: 'y' as const,
+            plugins: {
+              legend: { display: false },
+              title: { display: true, text: 'Top cohetes por lanzamientos', color: '#e2e8f0', font: { size: 13, weight: 'bold' } },
+            },
+            scales: {
+              x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(30,48,80,0.6)' } },
+              y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(30,48,80,0.6)' } },
+            },
+          }}
+        />
+      </div>
+
+      {/* Line: acumulado */}
+      <div className="chart-card chart-card--lg">
+        <Line
+          data={lineChartData}
+          options={{
+            ...darkOptions('Acumulado de lanzamientos exitosos'),
+            scales: {
+              x: { ticks: { color: '#64748b', maxTicksLimit: 12 }, grid: { color: 'rgba(30,48,80,0.6)' } },
+              y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(30,48,80,0.6)' } },
+            },
+          }}
+        />
       </div>
     </div>
   )

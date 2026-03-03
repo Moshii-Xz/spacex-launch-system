@@ -16,8 +16,9 @@ Sistema fullstack en AWS que recolecta, almacena y visualiza datos de lanzamient
 8. [Pruebas automatizadas](#pruebas-automatizadas)
 9. [Pipeline CI/CD](#pipeline-cicd)
 10. [API REST — Referencia de endpoints](#api-rest--referencia-de-endpoints)
-11. [URLs públicas](#urls-públicas)
-12. [Cómo extender el sistema](#cómo-extender-el-sistema)
+11. [Probar con Postman](#probar-con-postman)
+12. [URLs públicas — Producción AWS](#urls-públicas--producción-aws)
+13. [Cómo extender el sistema](#cómo-extender-el-sistema)
 
 ---
 
@@ -79,6 +80,34 @@ API Gateway (manual)               (ECS Fargate)
 - Comunica exclusivamente con el Backend a través de `VITE_API_BASE_URL`.
 - Pruebas con Vitest.
 
+#### Dashboard Analytics — Vistas
+
+| Vista | Descripción |
+|---|---|
+| **📋 Tabla** | Listado paginado (15 por página) con ordenamiento por columna, parche de misión, badges de estado y links externos |
+| **📊 Gráficos** | Grid 2×2: Doughnut (estado), Bar apilada (por año), Barras horizontales (top cohetes), Línea acumulativa (éxitos en el tiempo) |
+| **⏱ Línea de tiempo** | Vista cronológica alternada con parche, detalles y links de cada misión |
+
+#### Componentes UI
+
+| Componente | Archivo | Función |
+|---|---|---|
+| `StatsCards` | `components/StatsCards.tsx` | 5 tarjetas KPI con barra de progreso proporcional al total |
+| `FilterBar` | `components/FilterBar.tsx` | Búsqueda, filtro por estado, rango de fechas, contador de resultados y botón de sincronización |
+| `LaunchTable` | `components/LaunchTable.tsx` | Tabla ordenable + paginación |
+| `LaunchCharts` | `components/LaunchCharts.tsx` | 4 gráficos con Chart.js (Doughnut, Bar, Bar horizontal, Line) |
+| `LaunchTimeline` | `components/LaunchTimeline.tsx` | Línea de tiempo alternada, máx. 40 items |
+
+#### Diseño visual
+
+- **Tema oscuro profundo** (`#050d1a`) con gradientes radiales tipo nebulosa en el fondo.
+- **Header** con degradado azul/índigo, cohete con animación `float`, indicador *Live* con punto pulsante.
+- **Tarjetas de stats**: borde superior de color por métrica, glow al hover específico, barra de progreso animada.
+- **Botones**: gradiente azul con sombra luminosa y elevación al hover.
+- **Gráficos**: borde iluminado + shimmer superior al hover.
+- **Transiciones** suavizadas con `cubic-bezier(0.4, 0, 0.2, 1)`.
+- **Responsive**: colapsa a 1 columna en ≤ 900 px, 2 columnas en ≤ 600 px.
+
 ### Infraestructura (`infra/`)
 
 - 100% Terraform (>= 1.5). Estado local en `terraform.tfstate`.
@@ -102,7 +131,20 @@ API Gateway (manual)               (ECS Fargate)
 | `launchpad` | String | Plataforma de lanzamiento |
 | `flight_number` | String | Número de vuelo |
 | `details` | String | Descripción |
-| `payloads` | List | IDs de cargas útiles |
+| `payloads` | List┌─────────────────────────────────────────────────────┐
+│  LOCAL (docker-compose)                             │
+│  DYNAMODB_ENDPOINT = http://dynamodb-local:8000     │
+│  → Llama SpaceX API directamente desde el backend   │
+│  → Escribe en DynamoDB LOCAL                        │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│  PRODUCCIÓN (ECS Fargate en AWS)                    │
+│  DYNAMODB_ENDPOINT = ❌ no existe                   │
+│  → Invoca la Lambda real via boto3                  │
+│  → Lambda escribe en DynamoDB real en AWS           │
+│  → Flujo original intacto                           │
+└─────────────────────────────────────────────────────┘ | IDs de cargas útiles |
 | `webcast_url` | String | YouTube / webcast |
 | `article_url` | String | Artículo de prensa |
 | `wikipedia_url` | String | Wikipedia |
@@ -152,10 +194,18 @@ spacex-launch-system/
 │   └── tests/test_api.py
 ├── webapp/                     # Frontend React + Vite
 │   ├── src/
+│   │   ├── App.tsx                 # Shell principal: header, tabs, rutas de vistas
+│   │   ├── index.css               # Diseño visual completo (tema oscuro, variables CSS)
 │   │   ├── components/
-│   │   ├── hooks/
+│   │   │   ├── StatsCards.tsx      # KPIs con barra de progreso
+│   │   │   ├── FilterBar.tsx       # Filtros + botón sincronizar
+│   │   │   ├── LaunchTable.tsx     # Tabla paginada y ordenable
+│   │   │   ├── LaunchCharts.tsx    # 4 gráficos Chart.js (2×2)
+│   │   │   └── LaunchTimeline.tsx  # Vista cronológica alternada
+│   │   ├── hooks/useLaunches.ts    # Estado global, filtros y peticiones
 │   │   ├── services/launchService.ts
-│   │   └── types/
+│   │   ├── types/launch.ts
+│   │   └── utils/filterLaunches.ts
 │   ├── Dockerfile
 │   └── nginx.conf
 ├── docker-compose.yml          # Entorno de desarrollo local completo
@@ -401,7 +451,7 @@ Swagger UI interactivo disponible en `/docs`. ReDoc en `/redoc`.
 | `GET` | `/api/v1/launches` | Listar todos los lanzamientos (soporta `?status=` y `?limit=`) |
 | `GET` | `/api/v1/launches/{launch_id}` | Detalle de un lanzamiento |
 | `GET` | `/api/v1/launches/stats` | Totales y tasa de éxito |
-| `POST` | `/api/v1/trigger` | Invocar la Lambda manualmente (dispara sincronización) |
+| `POST` | `/api/v1/trigger` | Invocar sincronización (Lambda en AWS, directo en local) |
 
 **Filtros disponibles en `GET /api/v1/launches`:**
 
@@ -410,32 +460,209 @@ Swagger UI interactivo disponible en `/docs`. ReDoc en `/redoc`.
 
 Los resultados siempre se retornan ordenados por `launch_date` descendente.
 
-**Ejemplo — disparar sincronización manual:**
+---
+
+## Probar con Postman
+
+> Importa la colección de abajo directo en Postman: **New → Raw text → pega el JSON**.
+> O usa los `curl` equivalentes desde cualquier terminal.
+
+### Variables de entorno sugeridas en Postman
+
+Crea dos entornos en Postman:
+
+| Variable | Entorno `local` | Entorno `produccion` |
+|---|---|---|
+| `base_url` | `http://localhost:8080` | `http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com` |
+| `trigger_url` | `http://localhost:8080` | `https://z7i0z19trh.execute-api.us-east-1.amazonaws.com/dev` |
+
+Usa `{{base_url}}` en todas las peticiones para cambiar entre entornos con un click.
+
+---
+
+### 1. Health check
+
+```
+GET {{base_url}}/health
+```
 
 ```bash
-curl -X POST http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1/trigger
-# {
-#   "total_fetched": 205,
-#   "inserted": 3,
-#   "updated": 202,
-#   "errors": 0,
-#   "launches": [...]
-# }
+# Local
+curl http://localhost:8080/health
+
+# Producción
+curl http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/health
+```
+
+Respuesta esperada:
+```json
+{ "status": "ok", "dynamodb": "ok", "version": "1.0.0" }
 ```
 
 ---
 
-## URLs públicas
+### 2. Sincronizar datos (cargar lanzamientos desde SpaceX)
+
+> **Ejecuta esto primero** antes de cualquier consulta — la tabla empieza vacía.
+
+```
+POST {{base_url}}/api/v1/trigger
+```
+
+```bash
+# Local
+curl -X POST http://localhost:8080/api/v1/trigger
+
+# Producción (vía ALB)
+curl -X POST http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1/trigger
+
+# Producción (vía API Gateway — invoca Lambda directamente)
+curl -X POST https://z7i0z19trh.execute-api.us-east-1.amazonaws.com/dev/trigger
+```
+
+Respuesta esperada:
+```json
+{
+  "total_fetched": 205,
+  "inserted": 185,
+  "updated": 20,
+  "errors": 0,
+  "launches": [
+    { "launch_id": "5eb87cd9ffd86e000604b32a", "mission_name": "FalconSat", "status": "failed" }
+  ]
+}
+```
+
+---
+
+### 3. Listar todos los lanzamientos
+
+```
+GET {{base_url}}/api/v1/launches
+```
+
+```bash
+# Local
+curl "http://localhost:8080/api/v1/launches"
+
+# Producción
+curl "http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1/launches"
+```
+
+---
+
+### 4. Listar con filtros
+
+```
+GET {{base_url}}/api/v1/launches?status=success&limit=10
+```
+
+```bash
+# Filtrar por estado — opciones: success | failed | upcoming | unknown
+curl "http://localhost:8080/api/v1/launches?status=upcoming"
+curl "http://localhost:8080/api/v1/launches?status=success&limit=5"
+
+# Producción
+curl "http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1/launches?status=upcoming"
+```
+
+---
+
+### 5. Detalle de un lanzamiento
+
+```
+GET {{base_url}}/api/v1/launches/5eb87cd9ffd86e000604b32a
+```
+
+```bash
+# Local
+curl "http://localhost:8080/api/v1/launches/5eb87cd9ffd86e000604b32a"
+
+# Producción
+curl "http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1/launches/5eb87cd9ffd86e000604b32a"
+```
+
+---
+
+### 6. Estadísticas generales
+
+```
+GET {{base_url}}/api/v1/launches/stats
+```
+
+```bash
+# Local
+curl "http://localhost:8080/api/v1/launches/stats"
+
+# Producción
+curl "http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1/launches/stats"
+```
+
+Respuesta esperada:
+```json
+{
+  "total": 205,
+  "success": 180,
+  "failed": 15,
+  "upcoming": 10,
+  "success_rate": 92.3
+}
+```
+
+---
+
+### Swagger UI (explorador interactivo)
+
+Abre en el navegador para probar todos los endpoints sin necesidad de Postman:
+
+| Entorno | URL Swagger |
+|---|---|
+| **Local** | http://localhost:8080/docs |
+| **Producción** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/docs |
+
+---
+
+## URLs públicas — Producción AWS
 
 El ALB provee un DNS **estable** que no cambia entre redeployments.
 
+### Acceso desde el navegador
+
 | Servicio | URL |
 |---|---|
-| **WebApp** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com |
-| **API REST** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1 |
+| **WebApp (React)** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com |
 | **Swagger UI** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/docs |
 | **ReDoc** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/redoc |
-| **API Gateway (trigger Lambda)** | https://z7i0z19trh.execute-api.us-east-1.amazonaws.com/dev/trigger |
+
+### Endpoints API (Postman / curl)
+
+| Endpoint | URL |
+|---|---|
+| **API Base** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1 |
+| **Health** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/health |
+| **Lanzamientos** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1/launches |
+| **Estadísticas** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1/launches/stats |
+| **Trigger (ALB)** | http://spacex-alb-dev-1388470716.us-east-1.elb.amazonaws.com/api/v1/trigger |
+| **Trigger (API Gateway)** | https://z7i0z19trh.execute-api.us-east-1.amazonaws.com/dev/trigger |
+
+### Recursos internos AWS
+
+| Recurso | Identificador |
+|---|---|
+| **DynamoDB Table** | `spacex-launches-dev` |
+| **Lambda Function** | `spacex-data-collector-dev` |
+| **ECS Cluster** | `spacex-cluster-dev` |
+| **ECR WebApp** | `600942989516.dkr.ecr.us-east-1.amazonaws.com/spacex-webapp-dev` |
+| **ECR Backend** | `600942989516.dkr.ecr.us-east-1.amazonaws.com/spacex-backend-dev` |
+
+### URLs locales (docker compose up)
+
+| Servicio | URL local |
+|---|---|
+| **WebApp** | http://localhost:3000 |
+| **Backend API** | http://localhost:8080/api/v1 |
+| **Swagger UI** | http://localhost:8080/docs |
+| **DynamoDB local** | http://localhost:8000 |
 
 ---
 
